@@ -35,3 +35,6 @@ bs4
 
 #mapping
 folium
+
+#secrets
+python-dotenv
