@@ -32,6 +32,7 @@ termcolor
 requests
 selenium
 bs4
+chromedriver_binary
 
 #mapping
 folium
