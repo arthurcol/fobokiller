@@ -27,3 +27,11 @@ six>=1.14
 joblib
 memoized-property
 termcolor
+
+#scrapping
+requests
+selenium
+bs4
+
+#mapping
+folium
