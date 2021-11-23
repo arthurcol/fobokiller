@@ -187,62 +187,6 @@ def get_place_google_url(place_id):
 
 
 
-def get_reviews_google(url,scroll_limit=None,quiet_mode=True,return_count=False):
-    options=Options()
-    if quiet_mode:
-        options.add_argument('--headless')
-    driver = webdriver.Chrome(options=options)
-    driver.get(url)
-
-
-    ###Expand all the reviews using Selenium
-    # privacy pop-up
-    xpath = "/html/body/c-wiz/div/div/div/div[2]/div[1]/div[4]/form/div[1]/div/button/span"
-    driver.find_element_by_xpath(xpath).click()
-
-    #review_count click
-    xpath = '//*[@id="pane"]/div/div[1]/div/div/div[2]/div[1]/div[1]/div[2]/div/div[1]/span[1]/span/span[1]/span[2]'
-
-    review_count = driver.find_element_by_xpath(xpath).text
-    review_count=review_count.split(' ', 1)[0]
-
-    driver.find_element_by_xpath(xpath).click()
-
-    # check
-    #driver.find_element_by_xpath("/html/body/div[3]/div[9]/div[8]/div/div[1]/div/div/div[38]/div/button/span/span").click()
-
-    #scroll to show all reviews
-    time.sleep(2)
-    if scroll_limit:
-        review_count=scroll_limit
-    scrollable_div = driver.find_element_by_xpath('//*[@id="pane"]/div/div[1]/div/div/div[2]')
-    for i in range(0,(round(int(review_count)/10-1))):
-        driver.execute_script('arguments[0].scrollTop = arguments[0].scrollHeight',
-                scrollable_div)
-        time.sleep(2)
-
-
-    ### Scrap the reviews info using BS
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-
-    #Scrap the reviews text
-    reviews_soup = soup.find_all('div', class_='ODSEW-ShBeI NIyLF-haAclf gm2-body-2')
-    reviews = [r.text for r in reviews_soup]
-
-    #Scrap the reviews rate
-    review_rates_soup = [s.find('span',class_='ODSEW-ShBeI-H1e3jb') for s in reviews_soup]
-    review_rates = [rr.attrs['aria-label'][1] for rr in review_rates_soup]
-    #Scrap the reviews date
-    review_dates_soup=[s.find('span', class_='ODSEW-ShBeI-RgZmSc-date') for s in reviews_soup]
-    review_dates=[rd.text for rd in review_dates_soup]
-
-
-    if return_count:
-
-        return review_count,review_dates,review_rates,reviews
-
-
-    return review_dates,review_rates,reviews
 
 ### Get all reviews from a Google page
 
@@ -256,9 +200,11 @@ def get_reviews_google(url,
     options = webdriver.ChromeOptions()
     options.add_experimental_option('prefs',
                                     {'intl.accept_languages': 'en,en_US'})
-
     if quiet_mode:
         options.add_argument('--headless')
+    else:
+        options.add_argument('--lang=en-GB')
+        options.add_argument("accept-language=en-US")
     driver = webdriver.Chrome(chrome_options=options)
     driver.get(url)
 
@@ -332,7 +278,9 @@ def get_reviews_google(url,
             'arguments[0].scrollTop = arguments[0].scrollHeight',
             scrollable_div)
         time.sleep(2)
-
+    plus_list = driver.find_elements_by_link_text("Plus")
+    for i in plus_list:
+        i.click()
     response = BeautifulSoup(driver.page_source, 'html.parser')
 
     reviews = response.find_all('div',
@@ -344,6 +292,7 @@ def get_reviews_google(url,
 def get_review_summary(result_set):
     rev_dict = {'Review Rate': [], 'Review Time': [], 'Review Text': []}
     for result in result_set:
+
         review_rate = result.find('span',
                                   class_='ODSEW-ShBeI-H1e3jb')["aria-label"]
         review_time = result.find('span',
@@ -362,13 +311,18 @@ def get_review_summary(result_set):
 
 
 def get_all_gr(url, iid, name, alias):
-    test = get_reviews_google(url, scroll_limit=10, quiet_mode=True)
-    table = get_review_summary(test)
-    table["id"] = iid
-    table["name"] = name
-    table["alias"] = alias
-    table.to_csv(name.replace(" ", "_").replace("'", "") + ".csv")
-    os.system("""gsutil cp '*.csv' 'gs://wagon-data-722-manoharan/restaurant/'""")
+    name
+    os.path.exists(name.replace(" ", "_").replace("'", "") + ".csv")
+    if os.path.exists(name.replace(" ", "_").replace("'", "") + ".csv") :
+        pass
+    else :
+        test = get_reviews_google(url, scroll_limit=10, quiet_mode=False)
+        table = get_review_summary(test)
+        table["id"] = iid
+        table["name"] = name
+        table["alias"] = alias
+        table.to_csv(name.replace(" ", "_").replace("'", "") + ".csv")
+        os.system("""gsutil cp '*.csv' 'gs://wagon-data-722-manoharan/restaurant/'""")
     return table
 
 
@@ -384,7 +338,10 @@ if __name__ == '__main__':
     #df["lien"] = df.apply(lambda x: get_place_google_url(x["id"]), axis=1)
     #review_dates, review_rates, reviews = get_reviews_google(lien, scroll_limit=100, quiet_mode=True, return_count=False)
     #df.to_csv("restaurant_google.csv")
-    df = pd.read_csv("restaurant_google.csv", nrows=2)
+    df = pd.read_csv("fobokiller/restaurant_google.csv")
     for i in range(1,len(df)) :
         print(df["name"][i])
-        test = get_all_gr(df["lien"][i],df["id"][i],df["name"][i],df["alias"][i])
+        try :
+            test = get_all_gr(df["lien"][i],df["id"][i],df["name"][i],df["alias"][i])
+        except :
+            pass
