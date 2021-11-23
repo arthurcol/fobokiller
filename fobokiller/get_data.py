@@ -293,12 +293,17 @@ def get_reviews_google(url,
     #total_number_of_reviews = soup.find("div", class_="gm2-caption").text
     #a = total_number_of_reviews
     time.sleep(1)
-    xpatrier = "/html/body/div[3]/div[9]/div[8]/div/div[1]/div/div/div[2]/div[7]/div[2]/button/span"
-    driver.find_element_by_xpath(xpatrier).click()
+    try :
+        xpatrier = "/html/body/div[3]/div[9]/div[8]/div/div[1]/div/div/div[2]/div[7]/div[2]/button/span"
+        driver.find_element_by_xpath(xpatrier).click()
+    except :
+        pass
     time.sleep(2)
-    xpatrecent = "/html/body/div[3]/div[3]/div[1]/ul/li[2]"
-    driver.find_element_by_xpath(xpatrecent).click()
-
+    try :
+        xpatrecent = "/html/body/div[3]/div[3]/div[1]/ul/li[2]"
+        driver.find_element_by_xpath(xpatrecent).click()
+    except :
+        pass
     ## Catch cellule of reviews
 
     books_html = soup.findAll('div', class_="siAUzd-neVct")
@@ -357,26 +362,29 @@ def get_review_summary(result_set):
 
 
 def get_all_gr(url, iid, name, alias):
-    test = get_reviews_google(url, scroll_limit=10, quiet_mode=False)
+    test = get_reviews_google(url, scroll_limit=10, quiet_mode=True)
     table = get_review_summary(test)
     table["id"] = iid
     table["name"] = name
     table["alias"] = alias
     table.to_csv(name.replace(" ", "_").replace("'", "") + ".csv")
+    os.system("""gsutil cp '*.csv' 'gs://wagon-data-722-manoharan/restaurant/'""")
     return table
 
 
 if __name__ == '__main__':
-    centers, radius = subzones_paris(1)
-    df = get_restaurants(centers, radius)
-    df = create_df_yelp(df)
-    df["id"] = df.apply(lambda x: get_place_google_id(x["name"], x["latitude"],
-                                                      x["longitude"]),
-                        axis=1)
-    df["lien"] = df.apply(lambda x: get_place_google_url(x["id"]), axis=1)
-    #review_dates, review_rates, reviews = get_reviews_google(
-    #    lien, scroll_limit=100, quiet_mode=True, return_count=False)
-    df.to_csv("restaurant_google.csv")
+    #centers, radius = subzones_paris(1)
+    #df = get_restaurants(centers, radius)
+    #df = create_df_yelp(df)
+    #df = pd.read_csv("final_resto_list.csv")
+    #print(df)
+    #df["id"] = df.apply(lambda x: get_place_google_id(x["name"], x["latitude"],
+    #                                                  x["longitude"]),
+    #                    axis=1)
+    #df["lien"] = df.apply(lambda x: get_place_google_url(x["id"]), axis=1)
+    #review_dates, review_rates, reviews = get_reviews_google(lien, scroll_limit=100, quiet_mode=True, return_count=False)
+    #df.to_csv("restaurant_google.csv")
+    df = pd.read_csv("restaurant_google.csv", nrows=2)
     for i in range(1,len(df)) :
         print(df["name"][i])
         test = get_all_gr(df["lien"][i],df["id"][i],df["name"][i],df["alias"][i])
