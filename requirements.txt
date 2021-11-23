@@ -39,3 +39,6 @@ folium
 
 #secrets
 python-dotenv
+
+#NLP
+nltk
