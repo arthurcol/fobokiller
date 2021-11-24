@@ -279,8 +279,6 @@ def get_reviews_google(url,
             scrollable_div)
         time.sleep(2)
     plus_list = driver.find_elements_by_link_text("Plus")
-    for i in plus_list:
-        i.click()
     response = BeautifulSoup(driver.page_source, 'html.parser')
 
     reviews = response.find_all('div',
@@ -316,13 +314,13 @@ def get_all_gr(url, iid, name, alias):
     if os.path.exists(name.replace(" ", "_").replace("'", "") + ".csv") :
         pass
     else :
-        test = get_reviews_google(url, scroll_limit=10, quiet_mode=False)
+        test = get_reviews_google(url, scroll_limit=200, quiet_mode=True)
         table = get_review_summary(test)
         table["id"] = iid
         table["name"] = name
         table["alias"] = alias
         table.to_csv(name.replace(" ", "_").replace("'", "") + ".csv")
-        os.system("""gsutil cp '*.csv' 'gs://wagon-data-722-manoharan/restaurant/'""")
+        #os.system("""gsutil cp '*.csv' 'gs://wagon-data-722-manoharan/restaurant/'""")
     return table
 
 
@@ -338,7 +336,8 @@ if __name__ == '__main__':
     #df["lien"] = df.apply(lambda x: get_place_google_url(x["id"]), axis=1)
     #review_dates, review_rates, reviews = get_reviews_google(lien, scroll_limit=100, quiet_mode=True, return_count=False)
     #df.to_csv("restaurant_google.csv")
-    df = pd.read_csv("fobokiller/restaurant_google.csv")
+    df = pd.read_csv("fobokiller/data/restaurant_google.csv")
+
     for i in range(1,len(df)) :
         print(df["name"][i])
         try :
