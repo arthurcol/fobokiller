@@ -15,10 +15,17 @@ path = find_dotenv()
 load_dotenv(path)
 yelp_key = os.getenv('YELP_KEY')
 
-list_resto = pd.read_csv('fobokiller/data/final_resto_list.csv',index_col=0).reset_index()
+list_resto = pd.read_csv('data/final_resto_list.csv',index_col=0).reset_index()
 list_resto=list_resto[list_resto['review_count']>20]
-#dt = pd.read_csv('../scrapping.csv', index_col=0)
-#done = dt['alias'].unique()
+list_resto.reset_index(drop=True, inplace=True)
+
+
+try:
+    dt = pd.read_csv('data/scrapping.csv', index_col=0)
+    previous_scrap = list(dt['alias'].unique())
+except:
+    previous_scrap = []
+    print('No previous scrapping')
 
 
 def get_reviews_yelp(url,alias, verbose=0, quiet_mode=True, load_strategy='eager'):
@@ -93,15 +100,19 @@ def save_data(alias,dates,rates,reviews):
                        'rate':rates,
                        'review':reviews
                            })
-    scrapping_df = pd.read_csv('scrapping.csv',index_col=0)
+    scrapping_df = pd.read_csv('data/scrapping.csv',index_col=0)
     scrapping_df = scrapping_df.append(df,ignore_index=True)
     return scrapping_df
 
-
 if __name__ == "__main__":
-    pd.DataFrame(columns=['alias','date','rate','review']).to_csv('scrapping.csv')
-    for i in range(10):
-        alias, dates, rates, reviews = get_reviews_yelp(
-            list_resto.loc[i, 'url'], list_resto.loc[i, 'alias'])
-        tmp = save_data(alias, dates, rates, reviews)
-        tmp.to_csv('scrapping.csv')
+    if previous_scrap == []:
+        pd.DataFrame(columns=['alias', 'date', 'rate', 'review']).to_csv(
+            'data/scrapping.csv')
+    for i in range(len(list_resto)):
+        if list_resto.loc[i, 'alias'] not in previous_scrap:
+            alias, dates, rates, reviews = get_reviews_yelp(
+                list_resto.loc[i, 'url'], list_resto.loc[i, 'alias'])
+            tmp = save_data(alias, dates, rates, reviews)
+            tmp.to_csv('data/scrapping.csv')
+        else:
+            print(list_resto.loc[i, 'alias'],'already scrapped')
