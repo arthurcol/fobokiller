@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import string
+import re
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from datetime import datetime
@@ -45,11 +46,12 @@ def clear_data_text(text, language='english',deep_clean=False):
 
     #remove after the end of the comment
     text=text.strip()
-    if text.endswith('useful  funny  cool'):
-        text = text[:-len('useful  funny  cool')]
+    text=text.replace('  ',' ')
+    if text.endswith('useful funny cool'):
+        text = text[:-len('useful funny cool')]
         text = text.strip()
     if text.startswith('updated review'):
-        text = text.split('useful  funny  cool', 1)[0]
+        text = text.split('useful funny cool', 1)[0]
         text = text[len('updated review'):]
         text = text.strip()
     if text.startswith('photos'):
@@ -79,11 +81,22 @@ def keep_digit(rate):
             return int(char)
     pass
 
+
+def splitter(text):
+    tmp = re.split('[.?!]', text)
+    tmp = filter(None, tmp)
+    return list(tmp)
+
+
 def cleaner(data):
     data['review_clean'] = data['review'].apply(clear_data_text)
     data['date'] = data['date'].apply(change_date)
     data['rate'] = data['rate'].apply(keep_digit)
-    return data
+    data['review_sentences'] = data['review_clean'].apply(splitter)
+    df_exploded = data.explode('review_sentences').reset_index(drop=True)
+    return df_exploded
+
+
 
 if __name__ == '__main__':
     #load data
@@ -92,5 +105,5 @@ if __name__ == '__main__':
     #call cleaner function
     data_clean = cleaner(data)
     path_storage = os.path.join(os.path.dirname(__file__),
-                                'data/scrapping_cleaned_top2vec.csv')
+                                'data/scrapping_cleaned_sentences.csv')
     data_clean.to_csv(path_storage)
