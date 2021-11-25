@@ -15,13 +15,16 @@ path = find_dotenv()
 load_dotenv(path)
 yelp_key = os.getenv('YELP_KEY')
 
-list_resto = pd.read_csv('data/final_resto_list.csv',index_col=0).reset_index()
+path_list_rest = os.path.join(os.path.dirname(__file__),'data/final_resto_list.csv')
+path_data = os.path.join(os.path.dirname(__file__),'data/scrapping.csv')
+
+list_resto = pd.read_csv(path_list_rest,index_col=0).reset_index()
 list_resto=list_resto[list_resto['review_count']>20]
 list_resto.reset_index(drop=True, inplace=True)
 
 
 try:
-    dt = pd.read_csv('data/scrapping.csv', index_col=0)
+    dt = pd.read_csv(path_data, index_col=0)
     previous_scrap = list(dt['alias'].unique())
 except:
     previous_scrap = []
@@ -100,19 +103,20 @@ def save_data(alias,dates,rates,reviews):
                        'rate':rates,
                        'review':reviews
                            })
-    scrapping_df = pd.read_csv('data/scrapping.csv',index_col=0)
+    scrapping_df = pd.read_csv(path_data,index_col=0)
     scrapping_df = scrapping_df.append(df,ignore_index=True)
     return scrapping_df
 
 if __name__ == "__main__":
     if previous_scrap == []:
         pd.DataFrame(columns=['alias', 'date', 'rate', 'review']).to_csv(
-            'data/scrapping.csv')
+            path_data)
     for i in range(len(list_resto)):
         if list_resto.loc[i, 'alias'] not in previous_scrap:
             alias, dates, rates, reviews = get_reviews_yelp(
-                list_resto.loc[i, 'url'], list_resto.loc[i, 'alias'])
+                list_resto.loc[i, 'url'], list_resto.loc[i, 'alias'],verbose=1)
             tmp = save_data(alias, dates, rates, reviews)
-            tmp.to_csv('data/scrapping.csv')
+            tmp.to_csv(path_data)
+            print(list_resto.loc[i, 'alias'], 'scrapped and saved')
         else:
             print(list_resto.loc[i, 'alias'],'already scrapped')
