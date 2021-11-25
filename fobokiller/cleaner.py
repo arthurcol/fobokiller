@@ -6,7 +6,7 @@ from nltk.tokenize import word_tokenize
 from datetime import datetime
 
 
-def clear_data_text(text, language='english'):
+def clear_data_text(text, language='english',deep_clean=False):
     """
     Returns a clean text as a string. Default language = english.
     Cleaning includes : removing punct, digit and \\n, stopwords, informations
@@ -18,31 +18,38 @@ def clear_data_text(text, language='english'):
         pos = text.find('\n')
         text = text[pos + 1:]
 
-    #remove punctuation
-    for punctuation in string.punctuation:
-        text = text.replace(punctuation, '')
+    text=text.replace('\n',' ')
+    text=text.replace('/','')
 
-    # remove number
-    text = ''.join(word for word in text if not word.isdigit())
+    if deep_clean:
+        #remove punctuation
+        for punctuation in string.punctuation:
+            text = text.replace(punctuation, '')
+
+    if True:
+        # remove number
+        text = ''.join(word for word in text if not word.isdigit())
 
     #pass in lowercase
     text = text.lower()
 
-    #remove stop words
-    stop_words = set(stopwords.words(language))
+    if deep_clean:
+        #remove stop words
+        stop_words = set(stopwords.words(language))
 
-    #text to list of word
-    word_tokens = word_tokenize(text)
+        #text to list of word
+        word_tokens = word_tokenize(text)
 
-    #list to string
-    text = " ".join([w for w in word_tokens if not w in stop_words])
+        #list to string
+        text = " ".join([w for w in word_tokens if not w in stop_words])
 
     #remove after the end of the comment
-    if text.endswith('useful funny cool'):
-        text = text[:-len('useful funny cool')]
+    text=text.strip()
+    if text.endswith('useful  funny  cool'):
+        text = text[:-len('useful  funny  cool')]
         text = text.strip()
     if text.startswith('updated review'):
-        text = text.split('useful funny cool', 1)[0]
+        text = text.split('useful  funny  cool', 1)[0]
         text = text[len('updated review'):]
         text = text.strip()
     if text.startswith('photos'):
@@ -85,5 +92,5 @@ if __name__ == '__main__':
     #call cleaner function
     data_clean = cleaner(data)
     path_storage = os.path.join(os.path.dirname(__file__),
-                                'data/scrapping_cleaned.csv')
+                                'data/scrapping_cleaned_top2vec.csv')
     data_clean.to_csv(path_storage)
