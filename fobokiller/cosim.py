@@ -36,8 +36,8 @@ def compute_sim_df(text, embedding, n_prox=None, min_review=0):
     df_agg = df_sentences.groupby('alias').agg({
         'rate': 'mean',
         'review': 'nunique',
-        'review_sentences':'first',
-        'review_clean':lambda txt: ' // '.join(txt),
+        #'review_sentences':'first',
+        #'review_clean':lambda txt: ' // '.join(txt),
         'sim':'mean'
     })
 
@@ -56,8 +56,7 @@ def compute_sim_df(text, embedding, n_prox=None, min_review=0):
                                  how='left',
                                  suffixes=('_s', '_r'))
 
-    df_final.drop(columns=['review', 'review_clean_s', 'review_sentences_r'],
-                 inplace=True)
+    df_final.drop(columns=['review'],inplace=True)
 
     return df_final
 
