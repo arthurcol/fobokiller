@@ -34,7 +34,10 @@ app.add_middleware(
 def index():
     return {"greeting": "Hello world"}
 
-
+#Input list of restaurant (alias)
+# details
 @app.get("/details")
 def get_details(alias) :
-    pass
+    print(type(alias))
+    pd_liste = resto_list.loc[resto_list['alias'].isin(alias), :]
+    return pd_liste.to_dict()
