@@ -34,10 +34,10 @@ def compute_sim_df(text, embedding, n_prox=None, min_review=0):
         df_filtered = df_sim.sort_values('sim', ascending=False)
 
     df_agg = df_filtered.groupby('alias').agg({
-        'rate':'mean',
-        'review':'nunique',
+        'rate': 'mean',
+        'review': 'nunique',
+        'review_sentences':'   ',
         'review_clean':lambda txt: ' // '.join(txt),
-        #'review_clean':'first',
         'sim':'mean'
     })
 
@@ -48,7 +48,7 @@ def compute_sim_df(text, embedding, n_prox=None, min_review=0):
 
     df_output['ratio'] = df_output['review_filtered'] / df_output['review_all']
 
-    return df_output[df_output['review_all'] > min_review]
+    return df_output[df_output['review_all'] > min_review] , df_filtered
 
 
 if __name__ == '__main__':
