@@ -21,23 +21,35 @@ def load_embedding():
         embedding = pickle.load(file)
     return embedding['embeddings']
 
-def compute_sim_df(text,embedding):
+
+def compute_sim_df(text, embedding, n_prox=None, min_review=0):
     input_encoded = model.encode(text)
     similarities = util.cos_sim(input_encoded, np.array(embedding))
 
-    df_sim = sentences_df.assign(sim = similarities.T)
+    df_sim = sentences_df.assign(sim=similarities.T)
 
-    df_filtered=df_sim[df_sim['sim']>.6]
-    df_filtered = df_filtered.sort_values('sim',ascending=False)\
-        .groupby('alias').agg({ 'rate':'mean',
-                                'review':'nunique',
-                                'review_clean':lambda txt : ' // '.join(txt),
-                                'sim':'mean'
-                                })
+    if n_prox:
+        df_filtered = df_sim.sort_values('sim', ascending=False)[:n_prox]
+    else:
+        df_filtered = df_sim.sort_values('sim', ascending=False)
 
-    df_output = df_filtered.merge(df_resto,on='alias',how='left',suffixes=('_filtered','_all')).reset_index()
+    df_agg = df_filtered.groupby('alias').agg({
+        'rate':'mean',
+        'review':'nunique',
+        'review_clean':lambda txt: ' // '.join(txt),
+        #'review_clean':'first',
+        'sim':'mean'
+    })
 
-    return df_output
+    df_output = df_agg.merge(df_resto,
+                             on='alias',
+                             how='left',
+                             suffixes=('_filtered', '_all')).reset_index()
+
+    df_output['ratio'] = df_output['review_filtered'] / df_output['review_all']
+
+    return df_output[df_output['review_all'] > min_review]
+
 
 if __name__ == '__main__':
     load_embedding()
