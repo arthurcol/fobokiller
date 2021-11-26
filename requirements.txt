@@ -42,3 +42,8 @@ python-dotenv
 
 #NLP
 nltk
+
+#sentence transformer
+sentence_transformers
+tensorflow
+pickle
