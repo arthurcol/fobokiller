@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,Query
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
+from typing import List
 
 resto_list = pd.read_csv("gs://fobokiller-722/final_resto_list.csv",
                          index_col=0)
@@ -24,8 +25,17 @@ def index():
 
 #Input list of restaurant (alias)
 # details
-@app.get("/details")
+@app.get("/detail")
 def get_details(alias):
+
     alias = [alias]
     pd_liste = resto_list.loc[resto_list['alias'].isin(alias), :]
+    return pd_liste.to_dict()
+
+
+@app.get("/details/")
+def read_items(alias: List[str] = Query(None)):
+    print(alias)
+    pd_liste = resto_list.loc[resto_list['alias'].isin(alias), :]
+    print(pd_liste)
     return pd_liste.to_dict()
