@@ -56,6 +56,8 @@ def compute_sim_df(text, embedding, n_prox=None, min_review=0):
                                  how='left',
                                  suffixes=('_s', '_r'))
 
+    df_final['metric']=df_final['ratio']*df_final['sim_r']
+
     df_final.drop(columns=['review'],inplace=True)
 
     return df_final
@@ -64,20 +66,25 @@ def summary_reviews(result,n_best):
     result.fillna(0,inplace=True)
 
     # select n_best first restaurants with higher sim_r
-    higher_sim_r = sorted(result['sim_r'].unique())[-n_best-1:]
-    best_sim_r = result[result['sim_r'] > higher_sim_r[0]]
+    higher_sim_r = sorted(result['metric'].unique())[-n_best - 1:]
+    best_sim_r = result[result['metric'] > higher_sim_r[0]]
 
     reviews = best_sim_r.groupby('alias').agg({
-        'review_clean': [lambda txt: ' '.join(txt), 'count'],
-        'review_filtered':
-        'first'
+        'review_clean': [set,'count'],
+        'review_filtered':'first',
+        'metric':'mean'
     })
 
-    reviews.rename(columns={'<lambda_0>':'reviews',
+    reviews.rename(columns={'set':'reviews',
                             'count':'nb_sentences',
-                            'first':'nb_review'},inplace=True)
+                            'first':'nb_review',
+                            'mean':'metric sim_ratio'},inplace=True)
 
     reviews = reviews.droplevel(level=0, axis=1)
+
+    reviews['sentences_pond'] = reviews['nb_sentences']/reviews['nb_sentences'].sum()
+    reviews['metric_pond'] = reviews['sentences_pond'] * reviews[
+        'metric sim_ratio']
 
     return reviews
 
