@@ -2,3 +2,6 @@ fastapi
 pandas
 typing
 uvicorn
+numpy
+sentence_transformers
+tensorflow
