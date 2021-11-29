@@ -60,6 +60,26 @@ def compute_sim_df(text, embedding, n_prox=None, min_review=0):
 
     return df_final
 
+def summary_reviews(result,n_best):
+    result.fillna(0,inplace=True)
+
+    # select n_best first restaurants with higher sim_r
+    higher_sim_r = sorted(result['sim_r'].unique())[-n_best-1:]
+    best_sim_r = result[result['sim_r'] > higher_sim_r[0]]
+
+    reviews = best_sim_r.groupby('alias').agg({
+        'review_clean': [lambda txt: ' '.join(txt), 'count'],
+        'review_filtered':
+        'first'
+    })
+
+    reviews.rename(columns={'<lambda_0>':'reviews',
+                            'count':'nb_sentences',
+                            'first':'nb_review'},inplace=True)
+
+    reviews = reviews.droplevel(level=0, axis=1)
+
+    return reviews
 
 if __name__ == '__main__':
     load_embedding()
