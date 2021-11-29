@@ -70,12 +70,12 @@ def summary_reviews(result,n_best):
     best_sim_r = result[result['metric'] > higher_sim_r[0]]
 
     reviews = best_sim_r.groupby('alias').agg({
-        'review_clean': [lambda txt: ' \n------\n '.join(txt), 'count'],
-        'review_filtered':
-        'first'
+        'review_clean': [set,'count'],
+        'review_filtered':'first',
+        'metric':'mean'
     })
 
-    reviews.rename(columns={'<lambda_0>':'reviews',
+    reviews.rename(columns={'set':'reviews',
                             'count':'nb_sentences',
                             'first':'nb_review'},inplace=True)
 
