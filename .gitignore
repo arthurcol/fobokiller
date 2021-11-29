@@ -6,3 +6,10 @@ raw_data/
 *.csv
 **/__pycache__/
 .env
+*.npz
+*.pkl
+model/
+*.pbz2
+*.gz
+*.xz
+*.pickle
