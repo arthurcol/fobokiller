@@ -86,7 +86,8 @@ def summary_reviews(result,n_best):
     reviews['metric_pond'] = reviews['sentences_pond'] * reviews[
         'metric sim_ratio']
 
-    return reviews
+    return reviews.sort_values('metric sim_ratio')
+
 
 if __name__ == '__main__':
     load_embedding()
