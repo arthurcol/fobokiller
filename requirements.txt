@@ -43,7 +43,13 @@ python-dotenv
 #NLP
 nltk
 
-#sentence transformer
+
+sentence-transformers
+
+
+ipywidgets
+
 sentence_transformers
 tensorflow
 pickle
+

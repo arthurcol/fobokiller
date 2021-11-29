@@ -1,12 +1,13 @@
 import pandas as pd
 import os
 import string
+import re
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from datetime import datetime
 
 
-def clear_data_text(text, language='english'):
+def clear_data_text(text, language='english',deep_clean=False):
     """
     Returns a clean text as a string. Default language = english.
     Cleaning includes : removing punct, digit and \\n, stopwords, informations
@@ -18,26 +19,34 @@ def clear_data_text(text, language='english'):
         pos = text.find('\n')
         text = text[pos + 1:]
 
-    #remove punctuation
-    for punctuation in string.punctuation:
-        text = text.replace(punctuation, '')
+    text=text.replace('\n',' ')
+    text=text.replace('/','')
 
-    # remove number
-    text = ''.join(word for word in text if not word.isdigit())
+    if deep_clean:
+        #remove punctuation
+        for punctuation in string.punctuation:
+            text = text.replace(punctuation, '')
+
+    if True:
+        # remove number
+        text = ''.join(word for word in text if not word.isdigit())
 
     #pass in lowercase
     text = text.lower()
 
-    #remove stop words
-    stop_words = set(stopwords.words(language))
+    if deep_clean:
+        #remove stop words
+        stop_words = set(stopwords.words(language))
 
-    #text to list of word
-    word_tokens = word_tokenize(text)
+        #text to list of word
+        word_tokens = word_tokenize(text)
 
-    #list to string
-    text = " ".join([w for w in word_tokens if not w in stop_words])
+        #list to string
+        text = " ".join([w for w in word_tokens if not w in stop_words])
 
     #remove after the end of the comment
+    text=text.strip()
+    text=text.replace('  ',' ')
     if text.endswith('useful funny cool'):
         text = text[:-len('useful funny cool')]
         text = text.strip()
@@ -72,11 +81,22 @@ def keep_digit(rate):
             return int(char)
     pass
 
+
+def splitter(text):
+    tmp = re.split('[.?!]', text)
+    tmp = filter(None, tmp)
+    return list(tmp)
+
+
 def cleaner(data):
     data['review_clean'] = data['review'].apply(clear_data_text)
     data['date'] = data['date'].apply(change_date)
     data['rate'] = data['rate'].apply(keep_digit)
-    return data
+    data['review_sentences'] = data['review_clean'].apply(splitter)
+    df_exploded = data.explode('review_sentences').reset_index(drop=True)
+    return df_exploded
+
+
 
 if __name__ == '__main__':
     #load data
@@ -85,5 +105,5 @@ if __name__ == '__main__':
     #call cleaner function
     data_clean = cleaner(data)
     path_storage = os.path.join(os.path.dirname(__file__),
-                                'data/scrapping_cleaned.csv')
+                                'data/scrapping_cleaned_sentences.csv')
     data_clean.to_csv(path_storage)
