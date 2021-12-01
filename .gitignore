@@ -7,9 +7,10 @@ raw_data/
 **/__pycache__/
 .env
 *.npz
-*.pkl
 model/
-*pbz2
+*.pkl
+*.pbz2
+*.ipynb
 *.gz
 *.xz
 *.pickle
