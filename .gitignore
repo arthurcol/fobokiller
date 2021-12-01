@@ -9,3 +9,7 @@ raw_data/
 *.npz
 *.pkl
 model/
+*pbz2
+*.gz
+*.xz
+*.pickle
