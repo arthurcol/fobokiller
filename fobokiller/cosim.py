@@ -22,7 +22,7 @@ def load_embedding():
     return embedding['embeddings']
 
 
-def compute_sim_df(text, embedding, n_prox=None, min_review=0):
+def compute_sim_df(text, embedding, n_prox=3000, min_review=0):
     input_encoded = model.encode(text)
     similarities = util.cos_sim(input_encoded, np.array(embedding))
 
@@ -38,13 +38,13 @@ def compute_sim_df(text, embedding, n_prox=None, min_review=0):
         'review': 'nunique',
         #'review_sentences':'first',
         #'review_clean':lambda txt: ' // '.join(txt),
-        'sim':'mean'
+        'sim': 'mean'
     })
 
     df_resto = df_agg.merge(df_all_resto,
-                             on='alias',
-                             how='left',
-                             suffixes=('_filtered', '_all')).reset_index()
+                            on='alias',
+                            how='left',
+                            suffixes=('_filtered', '_all')).reset_index()
 
     df_resto['ratio'] = df_resto['review_filtered'] / df_resto['review_all']
 
@@ -52,41 +52,54 @@ def compute_sim_df(text, embedding, n_prox=None, min_review=0):
     df_resto = df_resto[df_resto['review_all'] > min_review]
 
     df_final = df_sentences.merge(df_resto,
-                                 on='alias',
-                                 how='left',
-                                 suffixes=('_s', '_r'))
+                                  on='alias',
+                                  how='left',
+                                  suffixes=('_s', '_r'))
 
-    df_final['metric']=df_final['ratio']*df_final['sim_r']
+    df_final['metric'] = df_final['ratio'] * df_final['sim_r'] * df_final[
+        'rate_filtered'] / 5
 
-    df_final.drop(columns=['review'],inplace=True)
+    df_final.drop(columns=['review'], inplace=True)
 
     return df_final
 
-def summary_reviews(result,n_best):
-    result.fillna(0,inplace=True)
+
+def summary_reviews(result, n_best):
+    result.fillna(0, inplace=True)
 
     # select n_best first restaurants with higher sim_r
     higher_sim_r = sorted(result['metric'].unique())[-n_best - 1:]
     best_sim_r = result[result['metric'] > higher_sim_r[0]]
 
     reviews = best_sim_r.groupby('alias').agg({
-        'review_clean': [set,'count'],
-        'review_filtered':'first',
-        'metric':'mean'
+        'review_clean': [set, 'count'],
+        'review_filtered': 'first',
+        'metric': 'mean',
+        "rate_filtered": "last"
     })
 
-    reviews.rename(columns={'set':'reviews',
-                            'count':'nb_sentences',
-                            'first':'nb_review',
-                            'mean':'metric sim_ratio'},inplace=True)
+    reviews.rename(columns={
+        'set': 'reviews',
+        'count': 'nb_sentences',
+        'first': 'nb_review',
+        'mean': 'metric sim_ratio',
+        "last": "rate_filtered"
+    },
+                   inplace=True)
 
     reviews = reviews.droplevel(level=0, axis=1)
 
-    reviews['sentences_pond'] = reviews['nb_sentences']/reviews['nb_sentences'].sum()
+    reviews['sentences_pond'] = reviews['nb_sentences'] / reviews[
+        'nb_sentences'].sum()
     reviews['metric_pond'] = reviews['sentences_pond'] * reviews[
         'metric sim_ratio']
 
-    return reviews
+
+
+    return reviews.sort_values('metric sim_ratio', ascending = False)
+
+
+
 
 if __name__ == '__main__':
     load_embedding()
