@@ -2,23 +2,18 @@
 
 #canonical
 from sys import path
-from h5py._hl import dataset
 import pandas as pd
 import numpy as np
 import os
-import pickle
 
 #words/sentences  preprocessing
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras import backend as K
 
-from tensorflow import GradientTape
 import tensorflow as tf
 
-from IPython.display import HTML, display
 
 #modeling
-from tensorflow.keras import models, layers
+from tensorflow.keras import models
 
 #cosim
 
@@ -89,10 +84,30 @@ def heatmap_sentences(review_sentences, review_embedded, model):
     heatmap = tf.reduce_mean(tf.multiply(pooled_grads, last_conv_layer),
                              axis=-1)
     heatmap = np.maximum(heatmap, 0)
-    heatmap /= np.max(heatmap)
+    if np.max(heatmap) !=0: ### A VOIR LE SENS ?!
+        heatmap /= np.max(heatmap)
+
+    polarity_distance=np.max(heatmap[0])-np.min(heatmap[0])
 
     html = ""
     for i, j in enumerate(review_sentences):
         html += f"<span style='background-color:rgba(0,{heatmap[0][i]*255},0,0.6)'>{j} </span>"
 
-    return html
+    return html,polarity_distance
+
+model_heatmap = load_model()
+
+def apply_heatmap_html(df):
+    html_out,polarity_distance=heatmap_sentences(df['review_sentences_trimed'],
+                                                 df['embedding'],model_heatmap)
+    return html_out
+
+
+def apply_heatmap_polarity(df):
+    html_out, polarity_distance = heatmap_sentences(
+        df['review_sentences_trimed'], df['embedding'], model_heatmap)
+    return polarity_distance
+
+
+if __name__ == '__main__':
+    pass
