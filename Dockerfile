@@ -12,7 +12,11 @@ COPY api /api
 
 COPY model /model
 
+COPY model_heatmap /model_heatmap
+
 COPY fobokiller /fobokiller
+
+COPY  fobokiller/data/scrapping_cleaned_sentences.csv /fobokiller/data/scrapping_cleaned_sentences.csv
 
 COPY final_resto_list.csv/ final_resto_list.csv
 
