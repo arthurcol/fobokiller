@@ -4,6 +4,9 @@ from sentence_transformers import SentenceTransformer, util
 import tensorflow
 import pickle
 import os
+from sklearn.metrics import pairwise_distances
+from scipy.spatial.distance import cosine
+
 
 path_full_dataset = os.path.join(os.path.dirname(__file__),'data/scrapping_cleaned_sentences.csv')
 path_model = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'model')
@@ -24,8 +27,9 @@ def load_embedding():
 
 def compute_sim_df(text, embedding, n_prox=None, min_review=0):
     input_encoded = model.encode(text)
-    similarities = util.cos_sim(input_encoded, np.array(embedding))
-
+    #similarities = util.cos_sim(input_encoded, np.array(embedding))
+    similarities = 1 - pairwise_distances(
+        input_encoded.reshape(1, -1), np.array(embedding), metric="cosine")
     df_sim = df_full.assign(sim=similarities.T)
 
     if n_prox:
