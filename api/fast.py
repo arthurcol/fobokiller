@@ -43,7 +43,7 @@ def read_items(alias: List[str] = Query(None)):
     )
 
 @app.get("/summary_reviews")
-def sr(text,n_best=10, n_prox=None, min_review =0):
+def sr(text,n_best=10, n_prox=3000, min_review =0):
     min_review =int(min_review)
     print(type(n_prox))
     if  pd.isna(n_prox) :
