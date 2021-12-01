@@ -91,8 +91,10 @@ def heatmap_sentences(review_sentences, review_embedded, model):
     heatmap = np.maximum(heatmap, 0)
     heatmap /= np.max(heatmap)
 
+    polarity_distance=np.max(heatmap[0])-np.min(heatmap[0])
+
     html = ""
     for i, j in enumerate(review_sentences):
         html += f"<span style='background-color:rgba(0,{heatmap[0][i]*255},0,0.6)'>{j} </span>"
 
-    return html
+    return html,polarity_distance
