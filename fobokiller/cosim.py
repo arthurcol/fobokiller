@@ -87,8 +87,8 @@ def summary_reviews(result,n_best):
         'metric sim_ratio']
 
 
-
     return reviews.sort_values('metric sim_ratio', ascending = False)
+
 
 
 if __name__ == '__main__':
