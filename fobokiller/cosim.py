@@ -89,15 +89,7 @@ def summary_reviews(result, n_best):
 
     reviews = reviews.droplevel(level=0, axis=1)
 
-    reviews['sentences_pond'] = reviews['nb_sentences'] / reviews[
-        'nb_sentences'].sum()
-    reviews['metric_pond'] = reviews['sentences_pond'] * reviews[
-        'metric sim_ratio']
-
-
-
     return reviews.sort_values('metric sim_ratio', ascending = False)
-
 
 
 

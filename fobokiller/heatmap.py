@@ -91,7 +91,7 @@ def heatmap_sentences(review_sentences, review_embedded, model):
 
     html = ""
     for i, j in enumerate(review_sentences):
-        html += f"<span style='background-color:rgba(0,{heatmap[0][i]*255},0,0.6)'>{j} </span>"
+        html += f"<span style='background-color:rgba(0,{255-heatmap[0][i]*255},0,0.6)'>{j} </span>"
 
     return html,polarity_distance
 
