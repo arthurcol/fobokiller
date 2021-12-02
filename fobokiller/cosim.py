@@ -4,6 +4,9 @@ from sentence_transformers import SentenceTransformer, util
 import tensorflow
 import pickle
 import os
+from joblib import Parallel, delayed
+import multiprocessing
+import torch
 
 path_full_dataset = os.path.join(os.path.dirname(__file__),'data/scrapping_cleaned_sentences.csv')
 path_model = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'model')
@@ -16,6 +19,11 @@ df_all_resto = df_full.groupby('alias').agg({ 'rate':'mean',
                                                 'review':'nunique'
                                             })
 
+
+
+
+
+
 def load_embedding():
     with open(path_embed, 'rb') as file:
         embedding = pickle.load(file)
@@ -24,7 +32,15 @@ def load_embedding():
 
 def compute_sim_df(text, embedding, n_prox=3000, min_review=0):
     input_encoded = model.encode(text)
-    similarities = util.cos_sim(input_encoded, np.array(embedding))
+    embedding_split = np.array_split(embedding,
+                                     multiprocessing.cpu_count() - 1)
+
+    similarities_parra = Parallel(n_jobs=-1)(
+        delayed(util.cos_sim)(input_encoded, split_embedding)
+        for split_embedding in embedding_split)
+    # // powa !
+    similarities = torch.cat(similarities_parra, 1)
+    #similarities = util.cos_sim(input_encoded, np.array(embedding))
 
     df_sim = df_full.assign(sim=similarities.T)
 
