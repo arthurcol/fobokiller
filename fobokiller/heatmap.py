@@ -69,10 +69,10 @@ def heatmap_sentences(review_sentences, review_embedded, model):
                                     padding='post',
                                     maxlen=30)
     # predict
-    preds = model.predict(review_embedded)
+    #preds = model.predict(review_embedded)
     #gradient tape
     with tf.GradientTape() as tape:
-        class_idx = np.argmax(preds[0]) #a priori useless always return 0
+        class_idx = 0#np.argmax(preds[0]) #a priori useless always return 0
         last_conv_layer = model.get_layer('conv1d')
         iterate = tf.keras.models.Model([model.inputs],
                                         [model.output, last_conv_layer.output])
@@ -91,7 +91,7 @@ def heatmap_sentences(review_sentences, review_embedded, model):
 
     html = ""
     for i, j in enumerate(review_sentences):
-        html += f"<span style='background-color:rgba(0,{heatmap[0][i]*255},0,0.6)'>{j} </span>"
+        html += f"<span style='background-color:rgba(200,{255-heatmap[0][i]*255},0,.6)'>{j} </span>"
 
     return html,polarity_distance
 
