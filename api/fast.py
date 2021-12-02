@@ -78,7 +78,7 @@ def sr(text, n_best=10, n_prox=3000, min_review=0):
 
 
 @app.get("/summary_reviews2")
-def sr2(text, n_best=10, n_prox=3000, min_review=10):
+def sr2(text, n_best=1, n_prox=3000, min_review=10):
 
     #setting types
     min_review = int(min_review)
@@ -121,6 +121,7 @@ def sr2(text, n_best=10, n_prox=3000, min_review=10):
         'mean',
         'metric sim_ratio':
         'mean',
+        'rate_filtered':'mean',
         'reviews_heatmaps_html':
         list,
         'reviews_heatmaps_polarity':
