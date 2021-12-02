@@ -4,7 +4,6 @@ COPY requirements_test.txt /requirements_test.txt
 
 RUN pip install joblib
 
-
 RUN pip install --upgrade pip
 
 RUN pip install -r requirements_test.txt
