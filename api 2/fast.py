@@ -1,28 +1,25 @@
-
-from fobokiller.heatmap import load_reviews_dataset, heatmap_sentences, \
-load_model,apply_heatmap_html,apply_heatmap_polarity
-
+from fobokiller.heatmap import load_reviews_dataset, heatmap_sentences, load_model
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from typing import List
-
 from fobokiller.cosim import compute_sim_df, load_embedding, summary_reviews
 #words/sentences  preprocessing
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras import backend as K
 #modeling
+from tensorflow.keras import models, layers
 from tensorflow import GradientTape
 import tensorflow as tf#modeling
 from tensorflow.keras import models, layers
 print("step 1: LOAD resto list")
-resto_list = pd.read_csv("api/final_resto_list.csv", index_col=0)
+resto_list = pd.read_csv("final_resto_list.csv", index_col=0)
 print("step 2: LOAD embedding")
 embedding = load_embedding()
 print("step 3: LOAD reviews_dataset")
 reviews_dataset = load_reviews_dataset()
 print("step 4: LOAD model")
-model_heatmap = load_model()
+load = load_model()
 
 
 app = FastAPI()
@@ -52,13 +49,11 @@ def get_details(alias):
     return pd_liste.to_dict()
 
 
-
 @app.get("/details/")
 def read_items(alias: List[str] = Query(None)):
     print(alias)
     pd_liste = resto_list.loc[resto_list['alias'].isin(alias), :]
     print(pd_liste)
-
     return pd_liste.to_dict()
 
 
@@ -69,7 +64,6 @@ def sr(text, n_best=10, n_prox=3000, min_review=0):
     if pd.isna(n_prox):
         pass
     else:
-
         n_prox = int(n_prox)
     temp = compute_sim_df(text, embedding, n_prox, min_review)
     print("temp OK ")
@@ -80,18 +74,15 @@ def sr(text, n_best=10, n_prox=3000, min_review=0):
 
 
 
+
 @app.get("/summary_reviews2")
 def sr2(text, n_best=10, n_prox=3000, min_review=10):
-
-    #setting types
     min_review = int(min_review)
     if pd.isna(n_prox):
         pass
     else:
         n_prox = int(n_prox)
     n_best = int(n_best)
-
-    #loading datasets
     results = compute_sim_df(text, embedding, n_prox, min_review)
     summary = summary_reviews(results, n_best)
     results['is_sim'] = 1
@@ -99,43 +90,18 @@ def sr2(text, n_best=10, n_prox=3000, min_review=10):
     results_trimed = results.drop(
         columns=['alias', 'rate', 'review_sentences'])
 
-    #merging datasets and house cleaning
-
+    #merging datasets
+    results_trimed = results.drop(
+        columns=['alias', 'rate', 'review_sentences'])
     tmp_df = reviews_dataset.merge(results_trimed,
                                    on='review_clean',
                                    how='left')
     tmp_df['is_sim'].fillna(0, inplace=True)
     all_df = tmp_df.merge(summary, on='alias', how='left')
     all_df.fillna(0, inplace=True)
-    all_df = all_df[all_df["is_in_summary"]==1]
-
-    #apply heatmap for html and polarity score
-    all_df['reviews_heatmaps_html'] = all_df.apply(apply_heatmap_html,axis=1)
-    all_df['reviews_heatmaps_polarity'] = all_df.apply(apply_heatmap_polarity, axis=1)
-
-    summary_reconstructed = all_df.groupby('alias').agg({
-        'review_clean':
-        list,
-        'nb_sentences':
-        'mean',
-        'nb_review':
-        'mean',
-        'metric sim_ratio':
-        'mean',  #WARNING
-        'sentences_pond':
-        'mean',  #CONFUSION ALERT
-        'metric_pond':
-        'mean',  ## LAQUELLE ON UTILISE ? DROP le reste
-        'reviews_heatmaps_html':
-        list,
-        'reviews_heatmaps_polarity':
-        list
-    })
-
     print("check")
-    print(type(summary_reconstructed))
-    print(summary_reconstructed.columns)
-    print(summary_reconstructed.shape)
-    output_json = summary_reconstructed.to_dict()
-    return output_json
-
+    print(type(all_df))
+    print(all_df.columns)
+    print(all_df.shape)
+    all_df = all_df.to_dict()
+    return all_df
