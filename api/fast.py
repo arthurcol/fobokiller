@@ -1,5 +1,5 @@
-from fobokiller.heatmap import load_reviews_dataset, heatmap_sentences, \
-load_model,apply_heatmap_html,apply_heatmap_polarity
+from fobokiller.heatmap import load_reviews_dataset, \
+load_model,compute_heatmap_polarity
 
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +14,6 @@ from tensorflow.keras import backend as K
 from tensorflow import GradientTape
 import tensorflow as tf#modeling
 from tensorflow.keras import models, layers
-
 resto_list = pd.read_csv("api/final_resto_list.csv", index_col=0)
 
 embedding = load_embedding()
@@ -107,8 +106,9 @@ def sr2(text, n_best=1, n_prox=3000, min_review=10):
     all_df = all_df[all_df["is_in_summary"]==1]
 
     #apply heatmap for html and polarity score
-    all_df['reviews_heatmaps_html'] = all_df.apply(apply_heatmap_html,axis=1)
-    all_df['reviews_heatmaps_polarity'] = all_df.apply(apply_heatmap_polarity, axis=1)
+    all_df['reviews_heatmaps_html'], all_df[
+        'reviews_heatmaps_polarity'] = compute_heatmap_polarity(
+            all_df, model_heatmap)
     ####  metrics for the val of the request
     all_df['request_metric'] = all_df[(all_df['is_in_summary'] == 1) & (
         all_df['is_sim'] == 1)]['nb_sentences'].sum() *100 /3000
@@ -121,7 +121,7 @@ def sr2(text, n_best=1, n_prox=3000, min_review=10):
         'mean',
         'metric sim_ratio':
         'mean',
-        'rate_filtered':'mean',
+        'rate_filtered_y':'mean',
         'reviews_heatmaps_html':
         list,
         'reviews_heatmaps_polarity':

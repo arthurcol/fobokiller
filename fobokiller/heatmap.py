@@ -62,51 +62,105 @@ def creating_query_dataset(embedding,reviews_dataset,query, n_prox, min_review,n
 
 
 
-def heatmap_sentences(review_sentences, review_embedded, model):
-    #padding
-    review_embedded = pad_sequences([review_embedded],
+# def heatmap_sentences(review_sentences, review_embedded, model):
+#     #padding
+#     review_embedded = pad_sequences([review_embedded],
+#                                     dtype='float32',
+#                                     padding='post',
+#                                     maxlen=30)
+#     # predict
+#     #preds = model.predict(review_embedded)
+#     #gradient tape
+#     with tf.GradientTape() as tape:
+#         class_idx = 0#round(preds[0][0]) #a priori useless always return 0
+#         last_conv_layer = model.get_layer('conv1d')
+#         iterate = tf.keras.models.Model([model.inputs],
+#                                         [model.output, last_conv_layer.output])
+#         model_out, last_conv_layer = iterate(review_embedded)
+#         class_out = model_out[:, class_idx]
+#         grads = tape.gradient(class_out, last_conv_layer)
+#         pooled_grads = tf.reduce_mean(grads)
+
+#     heatmap = tf.reduce_mean(tf.multiply(pooled_grads, last_conv_layer),
+#                              axis=-1)
+#     heatmap = np.maximum(heatmap, 0)
+#     if np.max(heatmap) !=0: ### A VOIR LE SENS ?!
+#         heatmap /= np.max(heatmap)
+
+#     polarity_distance=np.max(heatmap[0])-np.min(heatmap[0])
+
+#     html = ""
+#     for i, j in enumerate(review_sentences):
+#         html += f"<span style='background-color:rgba(0,{255-heatmap[0][i]*255},0,0.6)'>{j} </span>"
+
+#     return html,polarity_distance
+
+def compute_heatmap_polarity(df_sentences,model):
+    a = df_sentences['embedding'].apply(lambda x : pad_sequences([x],
                                     dtype='float32',
                                     padding='post',
-                                    maxlen=30)
-    # predict
-    preds = model.predict(review_embedded)
-    #gradient tape
-    with tf.GradientTape() as tape:
-        class_idx = np.argmax(preds[0]) #a priori useless always return 0
-        last_conv_layer = model.get_layer('conv1d')
-        iterate = tf.keras.models.Model([model.inputs],
-                                        [model.output, last_conv_layer.output])
-        model_out, last_conv_layer = iterate(review_embedded)
-        class_out = model_out[:, class_idx]
-        grads = tape.gradient(class_out, last_conv_layer)
-        pooled_grads = tf.reduce_mean(grads)
+                                    maxlen=30))
+    cpt=0
+    l_htmls = []
+    l_polarities=[]
+    l_dfs = []
+    for el in a:
+        review_embedded = el
+        df_tot = pd.DataFrame(df_sentences.iloc[cpt]["review_sentences_trimed"],columns=['sentence'])
 
-    heatmap = tf.reduce_mean(tf.multiply(pooled_grads, last_conv_layer),
-                             axis=-1)
-    heatmap = np.maximum(heatmap, 0)
-    if np.max(heatmap) !=0: ### A VOIR LE SENS ?!
-        heatmap /= np.max(heatmap)
+        #preds = model.predict(el)
+        #gradient tape
+        with tf.GradientTape() as tape:
+            class_idx = 0 #np.argmax(preds[0]) #a priori useless always return 0
+            last_conv_layer = model.get_layer('conv1d')
+            iterate = tf.keras.models.Model([model.inputs],
+                                            [model.output, last_conv_layer.output])
+            model_out, last_conv_layer = iterate(review_embedded)
+            class_out = model_out[:, class_idx]
+            grads = tape.gradient(class_out, last_conv_layer)
+            pooled_grads = tf.reduce_mean(grads)
 
-    polarity_distance=np.max(heatmap[0])-np.min(heatmap[0])
+        heatmap = tf.reduce_mean(tf.multiply(pooled_grads, last_conv_layer),
+                                 axis=-1)
+        heatmap = np.maximum(heatmap, 0)
+        if np.max(heatmap) !=0: ### A VOIR LE SENS ?!
+            heatmap /= np.max(heatmap)
 
-    html = ""
-    for i, j in enumerate(review_sentences):
-        html += f"<span style='background-color:rgba(0,{255-heatmap[0][i]*255},0,0.6)'>{j} </span>"
-
-    return html,polarity_distance
-
-model_heatmap = load_model()
-
-def apply_heatmap_html(df):
-    html_out,polarity_distance=heatmap_sentences(df['review_sentences_trimed'],
-                                                 df['embedding'],model_heatmap)
-    return html_out
+        polarity_distance=np.max(heatmap[0])-np.min(heatmap[0])
+        html = ""
 
 
-def apply_heatmap_polarity(df):
-    html_out, polarity_distance = heatmap_sentences(
-        df['review_sentences_trimed'], df['embedding'], model_heatmap)
-    return polarity_distance
+        df_tot['heatmap']=heatmap.reshape(heatmap.shape[1])[:len(df_tot)].tolist()
+        df_tot['review_num'] = cpt
+        col = df_tot.columns
+
+
+        l_dfs.append(df_tot)
+        l_polarities.append(polarity_distance)
+        cpt+=1
+
+    df_all = pd.concat(l_dfs)
+    col = df_all.columns
+    df_all['html'] = df_all.apply(
+        lambda x: colorized(x['heatmap'], x['sentence']), axis=1)
+    l_htmls = df_all[['review_num','html']].groupby('review_num').sum()['html'].tolist()
+
+    return l_htmls, l_polarities
+
+
+def colorized(heatmap, review):
+    return f"<span style='background-color:rgba(200,{heatmap*255},0,1)'>{review} </span>"
+
+#def apply_heatmap_html(df):
+#    html_out,polarity_distance=heatmap_sentences(df['review_sentences_trimed'],
+#                                                 df['embedding'],model_heatmap)
+#    return html_out
+
+
+#def apply_heatmap_polarity(df):
+#    html_out, polarity_distance = heatmap_sentences(
+#        df['review_sentences_trimed'], df['embedding'], model_heatmap)
+#    return polarity_distance
 
 
 if __name__ == '__main__':
