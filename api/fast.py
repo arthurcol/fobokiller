@@ -1,6 +1,5 @@
-
-from fobokiller.heatmap import load_reviews_dataset, heatmap_sentences, \
-load_model,apply_heatmap_html,apply_heatmap_polarity
+from fobokiller.heatmap import load_reviews_dataset, \
+load_model,compute_heatmap_polarity
 
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,13 +14,12 @@ from tensorflow.keras import backend as K
 from tensorflow import GradientTape
 import tensorflow as tf#modeling
 from tensorflow.keras import models, layers
-print("step 1: LOAD resto list")
 resto_list = pd.read_csv("api/final_resto_list.csv", index_col=0)
-print("step 2: LOAD embedding")
+
 embedding = load_embedding()
-print("step 3: LOAD reviews_dataset")
+
 reviews_dataset = load_reviews_dataset()
-print("step 4: LOAD model")
+
 model_heatmap = load_model()
 
 
@@ -72,16 +70,14 @@ def sr(text, n_best=10, n_prox=3000, min_review=0):
 
         n_prox = int(n_prox)
     temp = compute_sim_df(text, embedding, n_prox, min_review)
-    print("temp OK ")
     n_best = int(n_best)
     result = summary_reviews(temp, n_best)
-    print("summary_reviews OK ")
     return result.to_dict()
 
 
 
 @app.get("/summary_reviews2")
-def sr2(text, n_best=10, n_prox=3000, min_review=10):
+def sr2(text, n_best=1, n_prox=3000, min_review=10):
 
     #setting types
     min_review = int(min_review)
@@ -110,9 +106,12 @@ def sr2(text, n_best=10, n_prox=3000, min_review=10):
     all_df = all_df[all_df["is_in_summary"]==1]
 
     #apply heatmap for html and polarity score
-    all_df['reviews_heatmaps_html'] = all_df.apply(apply_heatmap_html,axis=1)
-    all_df['reviews_heatmaps_polarity'] = all_df.apply(apply_heatmap_polarity, axis=1)
-
+    all_df['reviews_heatmaps_html'], all_df[
+        'reviews_heatmaps_polarity'] = compute_heatmap_polarity(
+            all_df, model_heatmap)
+    ####  metrics for the val of the request
+    all_df['request_metric'] = all_df[(all_df['is_in_summary'] == 1) & (
+        all_df['is_sim'] == 1)]['nb_sentences'].sum() *100 /3000
     summary_reconstructed = all_df.groupby('alias').agg({
         'review_clean':
         list,
@@ -121,21 +120,17 @@ def sr2(text, n_best=10, n_prox=3000, min_review=10):
         'nb_review':
         'mean',
         'metric sim_ratio':
-        'mean',  #WARNING
-        'sentences_pond':
-        'mean',  #CONFUSION ALERT
-        'metric_pond':
-        'mean',  ## LAQUELLE ON UTILISE ? DROP le reste
+        'mean',
+        'rate_filtered_y':'mean',
         'reviews_heatmaps_html':
         list,
         'reviews_heatmaps_polarity':
         list
     })
 
-    print("check")
-    print(type(summary_reconstructed))
-    print(summary_reconstructed.columns)
-    print(summary_reconstructed.shape)
+    #print("check")
+    #print(type(summary_reconstructed))
+    #print(summary_reconstructed.columns)
+    #print(summary_reconstructed.shape)
     output_json = summary_reconstructed.to_dict()
     return output_json
-

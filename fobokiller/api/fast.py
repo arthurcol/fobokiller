@@ -2,6 +2,9 @@ from fastapi import FastAPI,Query
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from typing import List
+import os
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 resto_list = pd.read_csv("gs://fobokiller-722/final_resto_list.csv",
                          index_col=0)
