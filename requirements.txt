@@ -39,3 +39,15 @@ folium
 
 #secrets
 python-dotenv
+
+#NLP
+nltk
+
+
+sentence-transformers
+
+
+ipywidgets
+
+sentence_transformers
+tensorflow
