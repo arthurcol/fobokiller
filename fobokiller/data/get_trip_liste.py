@@ -10,19 +10,27 @@ from selenium.webdriver.chrome.options import Options
 
 # params
 
-url = "https://www.tripadvisor.fr/Restaurants-g187147-Paris_Ile_de_France.html"
+url = "https://www.tripadvisor.fr/Restaurants-g196577-Melun_Seine_et_Marne_Ile_de_France.html"
 
 accepter = '//*[@id="onetrust-accept-btn-handler"]'
 cellule = ".//a[@class='emrzT Vt o'"
+limite = '//*[@id="secondaryText"]'
 # Import the webdriver
 driver = driver = webdriver.Firefox()
 driver.get(url)
+
 
 # Privacy pop-up
 
 time.sleep(5)
 driver.find_element_by_xpath(accepter).click()
-
+time.sleep(5)
+try :
+    driver.find_element_by_xpath(limite).click()
+    print("Option limitation de recherche activer")
+    time.sleep(5)
+except :
+    print("Option limitation de recherche indisponible")
 container = driver.find_elements_by_xpath(".//div[@class='cauvp Gi o']")
 
 nom_restaurant = []
@@ -31,7 +39,7 @@ type_der = []
 cout = []
 lien = []
 
-for i in range(0, 410):
+for i in range(0, 410,1):
     for j in range(len(container)):
         try:
             nom_restaurant.append(container[j].find_element_by_xpath(
@@ -55,7 +63,8 @@ for i in range(0, 410):
             type_der.append("Failed")
         try:
             cout.append(container[j].find_element_by_xpath(
-                ".//span[@class='XNMDG']").text)
+                '/html/body/div[4]/div[3]/div[3]/div[2]/div[2]/div[3]/div[2]/div/div[5]/div[3]/div[5]/div[1]/div/div/div[15]/span/div[1]/div[2]/div[2]/div/div[2]/span[2]/span'
+            ).text)
         except:
             cout.append("Failed")
         try:
@@ -63,19 +72,21 @@ for i in range(0, 410):
                 ".//a[@class='bHGqj Cj b']").text)
         except:
             print("Failed")
-    driver.find_element_by_link_text(str(i + 2)).click()
+
     try:
+        driver.find_element_by_link_text(str(i + 2)).click()
         time.sleep(3)
         print("page suivante" + str(i + 2))
         time.sleep(3)
         container = driver.find_elements_by_xpath(
             ".//div[@class='cauvp Gi o']")
     except:
-        print("add time")
+        print(driver.find_elements_by_xpath(".//div[@class='cauvp Gi o']"))
         time.sleep(10)
+        break
 
-        container = driver.find_elements_by_xpath(
-            ".//div[@class='cauvp Gi o']")
+        #container = driver.find_elements_by_xpath(
+        #    ".//div[@class='cauvp Gi o']")
 
 temp = zip(nom_restaurant, lien, nb_avis, type_der, cout)
 
@@ -90,4 +101,4 @@ liste.rename(columns={
 },
              inplace=True)
 
-liste.to_csv("LISTE20K.csv", sep=",")
+liste.to_csv("Melun.csv", sep=",")
