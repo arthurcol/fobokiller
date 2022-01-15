@@ -4,7 +4,12 @@ import sys
 import csv
 from selenium import webdriver
 import time
+import locale
+import datetime
 
+# define env lang
+
+locale.setlocale(locale.LC_ALL, 'fr_FR')
 # Params Xpath
 
 # bouton accepter
@@ -19,7 +24,7 @@ nb_avis = "eBTWs"
 
 def Scrap_ta(url):
     # default path to file to store data
-    path_to_file = "/Users/manoharan/Desktop/test.csv"
+    path_to_file = "/Users/manoharan/Desktop/melun.csv"
 
     # default number of scraped pages
     num_page = 4500
@@ -76,8 +81,8 @@ def Scrap_ta(url):
             ).get_attribute("class").split("_")[3]
             review = container[j].find_element_by_xpath(
                 ".//p[@class='partial_entry']").text.replace("\n", " ")
-
-            csvWriter.writerow([date, rating, title, review, adresse])
+            date = datetime.datetime.strptime(date, "%d %B %Y").strftime("%d/%m/%Y")
+            csvWriter.writerow([date, float(rating)/10, title, review, adresse])
 
         # change the page
         try:
