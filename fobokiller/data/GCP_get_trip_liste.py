@@ -82,9 +82,12 @@ for i in range(0, 50,1):
             temp_nb_avis = "Failed"
             nb_avis.append(temp_nb_avis)
         try:
-            temp_type_der = container[j].find_element_by_xpath(
-                ".//span[@class='XNMDG']").text
-            type_der.append(temp_type_der)
+            l = container[j].find_element_by_xpath(".//span[@class='XNMDG']")
+            if len(l) > 0:
+                temp_type_der = l.text
+                type_der.append(temp_type_der)
+            else :
+                type_der.append("Failed")
         except:
             temp_type_der("Failed")
             type_der.append(temp_type_der)
