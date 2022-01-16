@@ -25,7 +25,7 @@ job_config = bigquery.LoadJobConfig(schema=[
 ], )
 # params
 
-url = "https://www.tripadvisor.fr/Restaurants-g187147-Paris_Ile_de_France.html"
+url = "https://www.tripadvisor.fr/Restaurants-g187147-zfn15621628-Paris_Ile_de_France.html"
 
 accepter = '//*[@id="onetrust-accept-btn-handler"]'
 cellule = ".//a[@class='emrzT Vt o'"
@@ -54,11 +54,15 @@ type_der = []
 cout = []
 lien = []
 
-for i in range(0, 410,1):
+
+for i in range(0, 50,1):
     for j in range(len(container)):
         try:
             temp_nom_restaurant = container[j].find_element_by_xpath(
                 ".//a[@class='bHGqj Cj b']").text
+            temp_nom_restaurant = temp_nom_restaurant.replace(",",".")
+            print(temp_nom_restaurant.split(".")[1])
+            temp_nom_restaurant = temp_nom_restaurant.split(".")[1]
             nom_restaurant.append(temp_nom_restaurant)
         except:
             temp_nom_restaurant = "Failed"
@@ -134,4 +138,4 @@ liste.rename(columns={
 },
              inplace=True)
 
-liste.to_csv("Melun1.csv", sep=",")
+liste.to_csv("Paris1.csv", sep=",")
