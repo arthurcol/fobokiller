@@ -25678,3 +25678,34 @@ DevTools listening on ws://localhost:54680/devtools/browser/6e86c230-88a0-4c8b-b
 1642322418449	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 JavaScript warning: https://pagead2.googlesyndication.com/bg/oCaBrhzCGlT5mvuc9Dz4nEKrkbyTgapk6W_7TPRun4A.js line 1 > eval line 2452 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
 JavaScript warning: https://pagead2.googlesyndication.com/bg/oCaBrhzCGlT5mvuc9Dz4nEKrkbyTgapk6W_7TPRun4A.js line 1 > eval line 2837 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+1642322896878	geckodriver	INFO	Listening on 127.0.0.1:55750
+1642322897092	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "--marionette" "--remote-debugging-port" "55751" "-foreground" "-no-remote" "-profile" "/var/folders/s6/nxj_k6112bj7cnd89_8b9l0c0000gn/T/rust_mozprofileX5TSpA"
+1642322898279	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /var/folders/s6/nxj_k6112bj7cnd89_8b9l0c0000gn/T/rust_mozprofileX5TSpA/search.json.mozlz4", (void 0)))
+console.error: BackgroundUpdate: 
+  _reasonsToNotScheduleUpdates: Failed to check for Maintenance Service Registry Key: [Exception... "Component returned failure code: 0x80004001 (NS_ERROR_NOT_IMPLEMENTED) [nsIUpdateProcessor.getServiceRegKeyExists]"  nsresult: "0x80004001 (NS_ERROR_NOT_IMPLEMENTED)"  location: "JS frame :: resource://gre/modules/BackgroundUpdate.jsm :: _reasonsToNotScheduleUpdates :: line 243"  data: no]
+DevTools listening on ws://localhost:55751/devtools/browser/75cce6d3-5b26-42ff-97f1-0d33a38634a3
+1642322902452	Marionette	INFO	Listening on port 55760
+1642322902542	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+JavaScript warning: https://pagead2.googlesyndication.com/bg/s22cBc76vWepYNwqq7rK-TaORqePB7gQ6sezXyyrHgA.js line 1 > eval line 2649 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://pagead2.googlesyndication.com/bg/s22cBc76vWepYNwqq7rK-TaORqePB7gQ6sezXyyrHgA.js line 1 > eval line 5511 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript warning: https://pagead2.googlesyndication.com/bg/s22cBc76vWepYNwqq7rK-TaORqePB7gQ6sezXyyrHgA.js line 1 > eval line 4911 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: uncaught exception: 7
+JavaScript warning: https://pagead2.googlesyndication.com/bg/s22cBc76vWepYNwqq7rK-TaORqePB7gQ6sezXyyrHgA.js line 1 > eval line 824 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: uncaught exception: 7
+JavaScript warning: https://pagead2.googlesyndication.com/bg/s22cBc76vWepYNwqq7rK-TaORqePB7gQ6sezXyyrHgA.js line 1 > eval line 5201 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript warning: https://www.tripadvisor.fr/Restaurants-g187147-zfn15621628-Paris_Ile_de_France.html line 1 > injectedScript, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript error: , line 0: uncaught exception: 7
+JavaScript warning: https://pagead2.googlesyndication.com/bg/s22cBc76vWepYNwqq7rK-TaORqePB7gQ6sezXyyrHgA.js line 1 > eval line 1262 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+1642324302921	Marionette	WARN	TimedPromise timed out after 500 ms: stacktrace:
+TimedPromise/<@chrome://remote/content/marionette/sync.js:238:19
+TimedPromise@chrome://remote/content/marionette/sync.js:223:10
+interaction.flushEventLoop@chrome://remote/content/marionette/interaction.js:431:10
+webdriverClickElement@chrome://remote/content/marionette/interaction.js:179:31
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.
+JavaScript warning: https://pagead2.googlesyndication.com/bg/s22cBc76vWepYNwqq7rK-TaORqePB7gQ6sezXyyrHgA.js line 1 > eval line 3217 > eval line 1 > eval, line 1: WEBGL_debug_renderer_info is deprecated in Firefox and will be removed. Please use RENDERER.
+JavaScript error: , line 0: TypeError: NetworkError when attempting to fetch resource.

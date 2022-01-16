@@ -82,14 +82,11 @@ for i in range(0, 50,1):
             temp_nb_avis = "Failed"
             nb_avis.append(temp_nb_avis)
         try:
-            l = container[j].find_element_by_xpath(".//span[@class='XNMDG']")
-            if len(l) > 0:
-                temp_type_der = l.text
-                type_der.append(temp_type_der)
-            else :
-                type_der.append("Failed")
+            temp_type_der = container[j].find_element_by_xpath(
+                ".//span[@class='XNMDG']").text
+            type_der.append(temp_type_der)
         except:
-            temp_type_der("Failed")
+            temp_type_der = "Failed"
             type_der.append(temp_type_der)
         try:
             temp_cout = container[j].find_element_by_xpath(
@@ -109,10 +106,10 @@ for i in range(0, 50,1):
             temp_nom_restaurant, temp_lien, temp_nb_avis, temp_type_der.replace(",","-"),
             temp_cout
         ])
-        print(push_p)
-        body = six.BytesIO(bytes(push_p, 'utf-8'))
-        client.load_table_from_file(body, table_id,
-                                    job_config=job_config).result()
+       # print(push_p)
+        #body = six.BytesIO(bytes(push_p, 'utf-8'))
+        #client.load_table_from_file(body, table_id,
+         #                           job_config=job_config).result()
     try:
         driver.find_element_by_link_text(str(i + 2)).click()
         time.sleep(3)
