@@ -22,9 +22,9 @@ cellule = ".//div[@class='review-container']"
 nb_avis = "eBTWs"
 
 
-def Scrap_ta(url):
+def Scrap_ta(url,name):
     # default path to file to store data
-    path_to_file = "/Users/manoharan/Desktop/melun.csv"
+    path_to_file = "/Users/nicolasmanoharan/code/nicolasmanoharan/fobokiller/fobokiller/data/Paris2N_TA.csv"
 
     # default number of scraped pages
     num_page = 4500
@@ -82,20 +82,37 @@ def Scrap_ta(url):
             review = container[j].find_element_by_xpath(
                 ".//p[@class='partial_entry']").text.replace("\n", " ")
             date = datetime.datetime.strptime(date, "%d %B %Y").strftime("%d/%m/%Y")
-            csvWriter.writerow([date, float(rating)/10, title, review, adresse])
-
+            csvWriter.writerow([date, float(rating)/10, title, review, adresse,name])
         # change the page
         try:
             driver.find_element_by_xpath(
                 './/a[@class="nav next ui_button primary"]').click()
+            # data = pd.DataFrame(zip(date, float(rating) / 10, title, review, adresse, name))
+            #
         except:
+            driver.close()
             return
+    try :
+        driver.close()
+    except :
+        None
 
-    driver.close()
 
 
 ####
 import pandas as pd
-test = pd.read_csv("Melun.csv")
 
-[Scrap_ta(i) for i in test["lien"]]
+test = pd.read_csv(
+    "/Users/nicolasmanoharan/code/nicolasmanoharan/fobokiller/fobokiller/data/Paris2.csv"
+)
+
+for i in range(0,test.shape[0]) :
+    if test["nom"][i] != "Failed" :
+        try :
+            print(test["nom"][i],i)
+            Scrap_ta(test["lien"][i],test["nom"][i])
+        except :
+            None
+
+
+#[Scrap_ta(i,j) for i in test["lien"] for j in test["nom"]]

@@ -10,7 +10,7 @@ from selenium.webdriver.chrome.options import Options
 
 # params
 
-url = "https://www.tripadvisor.fr/Restaurants-g196577-Melun_Seine_et_Marne_Ile_de_France.html"
+url = "https://www.tripadvisor.fr/Restaurants-g187147-zfn15621625-Paris_Ile_de_France.html"
 
 accepter = '//*[@id="onetrust-accept-btn-handler"]'
 cellule = ".//a[@class='emrzT Vt o'"
@@ -101,4 +101,4 @@ liste.rename(columns={
 },
              inplace=True)
 
-liste.to_csv("Melun.csv", sep=",")
+liste.to_csv("Paris2.csv", sep=",")

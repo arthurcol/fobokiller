@@ -107,9 +107,9 @@ for i in range(0, 50,1):
             temp_cout
         ])
        # print(push_p)
-        #body = six.BytesIO(bytes(push_p, 'utf-8'))
-        #client.load_table_from_file(body, table_id,
-         #                           job_config=job_config).result()
+        body = six.BytesIO(bytes(push_p, 'utf-8'))
+        client.load_table_from_file(body, table_id,
+                                    job_config=job_config).result()
     try:
         driver.find_element_by_link_text(str(i + 2)).click()
         time.sleep(3)
