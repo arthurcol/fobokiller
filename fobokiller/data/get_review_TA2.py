@@ -22,6 +22,17 @@ cellule = ".//div[@class='review-container']"
 nb_avis = "eBTWs"
 
 
+
+def get_adress(url):
+    driver2 = webdriver.Firefox()
+    driver2.get(url)
+    time.sleep(3)
+    driver2.find_element_by_xpath(accepter).click()
+    gaddress = driver2.find_element_by_xpath(adresse_postal).text
+    driver2.close()
+    return gaddress
+
+
 def Scrap_ta(url,name):
     # default path to file to store data
     path_to_file = "/Users/nicolasmanoharan/code/nicolasmanoharan/fobokiller/fobokiller/data/Paris2_TA.csv"
@@ -92,6 +103,8 @@ def Scrap_ta(url,name):
             return
 
 
+
+#####
 
 
 ####

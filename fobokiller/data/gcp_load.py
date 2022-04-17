@@ -10,7 +10,7 @@ projet_id = "wagon-bootcamp-328013"
 table_id = "wagon-bootcamp-328013.trip.comment"
 
 #
-data = pd.read_csv("data/Paris1b_TA.csv", header = None)
+data = pd.read_csv("data/Paris6_TA.csv", header = None)
 
 #
 data[0] = [i.replace("/", "-") for i in data[0]]

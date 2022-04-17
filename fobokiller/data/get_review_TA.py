@@ -24,10 +24,10 @@ nb_avis = "eBTWs"
 
 def Scrap_ta(url,name):
     # default path to file to store data
-    path_to_file = "/Users/nicolasmanoharan/code/nicolasmanoharan/fobokiller/fobokiller/data/Paris2N_TA.csv"
+    path_to_file = "/Users/nicolasmanoharan/code/nicolasmanoharan/fobokiller/fobokiller/data/Paris7_TA.csv"
 
     # default number of scraped pages
-    num_page = 4500
+    #num_page = 4500
 
     # default tripadvisor website of restaurant
     #url ="https://www.tripadvisor.fr/Restaurant_Review-g187130-d2258927-Reviews-Casse_Cailloux-Tours_Indre_et_Loire_Centre_Val_de_Loire.html"
@@ -59,6 +59,9 @@ def Scrap_ta(url,name):
 
     # change the value inside the range to save more or less reviews
     for i in range(0, num_page):
+        if int(nb_avis) == 0 :
+            driver.close()
+            continue
         print(i)
         # expand the review
         time.sleep(2)
@@ -103,7 +106,7 @@ def Scrap_ta(url,name):
 import pandas as pd
 
 test = pd.read_csv(
-    "/Users/nicolasmanoharan/code/nicolasmanoharan/fobokiller/fobokiller/data/Paris2.csv"
+    "/Users/nicolasmanoharan/code/nicolasmanoharan/fobokiller/fobokiller/Paris7.csv"
 )
 
 for i in range(0,test.shape[0]) :
@@ -116,3 +119,15 @@ for i in range(0,test.shape[0]) :
 
 
 #[Scrap_ta(i,j) for i in test["lien"] for j in test["nom"]]
+
+test = pd.read_csv(
+    "/Users/nicolasmanoharan/code/nicolasmanoharan/fobokiller/fobokiller/Paris8.csv"
+)
+
+for i in range(0, test.shape[0]):
+    if test["nom"][i] != "Failed":
+        try:
+            print(test["nom"][i], i)
+            Scrap_ta(test["lien"][i], test["nom"][i])
+        except:
+            None
